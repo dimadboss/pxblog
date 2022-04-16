@@ -17,3 +17,6 @@ config :pxblog, Pxblog.Repo,
   database: "pxblog_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# decrease hash level for tests
+config :comeonin, bcrypt_log_rounds: 4

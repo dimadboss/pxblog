@@ -60,7 +60,9 @@ defmodule Pxblog.PostControllerTest do
   test "deletes chosen resource", %{conn: conn} do
     post = Repo.insert! %Post{}
     conn = delete conn, post_path(conn, :delete, post)
+    # after delete returns to index page
     assert redirected_to(conn) == post_path(conn, :index)
+    # make sure post does not exist now
     refute Repo.get(Post, post.id)
   end
 end

@@ -7,7 +7,8 @@ defmodule Pxblog.User do
     field(:email, :string)
     field(:password_digest, :string)
 
-    # Virtual Fields
+    has_many(:posts, Pxblog.Post)
+
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)
 

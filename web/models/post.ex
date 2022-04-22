@@ -2,9 +2,9 @@ defmodule Pxblog.Post do
   use Pxblog.Web, :model
 
   schema "posts" do
-    field :title, :string
-    field :body, :string
-
+    field(:title, :string)
+    field(:body, :string)
+    belongs_to(:user, Pxblog.User)
     timestamps()
   end
 

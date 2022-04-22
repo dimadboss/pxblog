@@ -18,8 +18,11 @@ defmodule Pxblog.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
-    resources("/posts", PostController)
-    resources("/users", UserController)
+
+    resources "/users", UserController do
+      resources("/posts", PostController)
+    end
+
     resources("/sessions", SessionController, only: [:new, :create, :delete])
   end
 

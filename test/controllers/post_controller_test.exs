@@ -9,18 +9,29 @@ defmodule Pxblog.PostControllerTest do
 
   setup do
     {:ok, user} = create_user()
+    {:ok, other_user} = create_other_user()
 
     conn =
       build_conn()
       |> login_user(user)
 
-    {:ok, conn: conn, user: user}
+    {:ok, conn: conn, user: user, other_user: other_user}
   end
 
   defp create_user do
     User.changeset(%User{}, %{
       email: "test@test.com",
       username: "test",
+      password: "test",
+      password_confirmation: "test"
+    })
+    |> Repo.insert()
+  end
+
+  defp create_other_user do
+    User.changeset(%User{}, %{
+      email: "test2@test.com",
+      username: "test2",
       password: "test",
       password_confirmation: "test"
     })
@@ -107,5 +118,36 @@ defmodule Pxblog.PostControllerTest do
     assert redirected_to(conn) == user_post_path(conn, :index, user)
     # make sure post does not exist now
     refute Repo.get(Post, post.id)
+  end
+
+  test "redirects when the specified user does not exist", %{conn: conn} do
+    conn = get(conn, user_post_path(conn, :index, -1))
+    assert get_flash(conn, :error) == "Invalid user!"
+    assert redirected_to(conn) == page_path(conn, :index)
+    assert conn.halted
+  end
+
+  test "redirects when trying to edit a post for a different user", %{conn: conn, user: user, other_user: other_user} do
+    post = build_post(user)
+    conn = get(conn, user_post_path(conn, :edit, other_user, post))
+    assert get_flash(conn, :error) == "You are not authorized to modify that post!"
+    assert redirected_to(conn) == page_path(conn, :index)
+    assert conn.halted
+  end
+
+  test "redirects when trying to delete a post for a different user", %{conn: conn, user: user, other_user: other_user} do
+    post = build_post(user)
+    conn = delete(conn, user_post_path(conn, :delete, other_user, post))
+    assert get_flash(conn, :error) == "You are not authorized to modify that post!"
+    assert redirected_to(conn) == page_path(conn, :index)
+    assert conn.halted
+  end
+
+  test "redirects when trying to update a post for a different user", %{conn: conn, user: user, other_user: other_user} do
+    post = build_post(user)
+    conn = put(conn, user_post_path(conn, :update, other_user, post), post: @valid_attrs)
+    assert get_flash(conn, :error) == "You are not authorized to modify that post!"
+    assert redirected_to(conn) == page_path(conn, :index)
+    assert conn.halted
   end
 end

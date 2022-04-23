@@ -4,6 +4,7 @@ defmodule Pxblog.PostController do
   alias Pxblog.Post
 
   plug(:assign_user)
+  plug(:authorize_user when action in [:new, :create, :update, :edit, :delete])
 
   defp assign_user(conn, _opts) do
     case conn.params do
@@ -92,5 +93,18 @@ defmodule Pxblog.PostController do
     conn
     |> put_flash(:info, "Post deleted successfully.")
     |> redirect(to: user_post_path(conn, :index, conn.assigns[:user]))
+  end
+
+  defp authorize_user(conn, _opts) do
+    user = get_session(conn, :current_user)
+
+    if user && Integer.to_string(user.id) == conn.params["user_id"] do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You are not authorized to modify that post!")
+      |> redirect(to: page_path(conn, :index))
+      |> halt()
+    end
   end
 end

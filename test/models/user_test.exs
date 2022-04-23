@@ -11,6 +11,20 @@ defmodule Pxblog.UserTest do
   }
   @invalid_attrs %{}
 
+  setup do
+    {:ok, role} = TestHelper.create_role(%{name: "user", admin: false})
+    {:ok, role: role}
+  end
+
+  defp valid_attrs(role) do
+    Map.put(@valid_attrs, :role_id, role.id)
+  end
+
+  test "changeset with valid attributes and role", %{role: role} do
+    changeset = User.changeset(%User{}, valid_attrs(role))
+    assert changeset.valid?
+  end
+
   test "password_digest value gets set to a hash" do
     changeset = User.changeset(%User{}, @valid_attrs)
 

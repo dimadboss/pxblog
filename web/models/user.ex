@@ -8,6 +8,7 @@ defmodule Pxblog.User do
     field(:password_digest, :string)
 
     has_many(:posts, Pxblog.Post)
+    belongs_to(:role, Pxblog.Role)
 
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)

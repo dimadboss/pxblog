@@ -2,6 +2,7 @@ defmodule Pxblog.UserTest do
   use Pxblog.ModelCase
 
   alias Pxblog.User
+  alias Pxblog.TestHelper
 
   @valid_attrs %{
     email: "some content",
@@ -46,8 +47,8 @@ defmodule Pxblog.UserTest do
     refute Ecto.Changeset.get_change(changeset, :password_digest)
   end
 
-  test "changeset with valid attributes" do
-    changeset = User.changeset(%User{}, @valid_attrs)
+  test "changeset with valid attributes", %{role: role} do
+    changeset = User.changeset(%User{}, valid_attrs(role))
     assert changeset.valid?
   end
 

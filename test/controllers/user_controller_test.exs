@@ -5,16 +5,6 @@ defmodule Pxblog.UserControllerTest do
   alias Pxblog.Role
   alias Pxblog.TestHelper
 
-  setup do
-    {:ok, user_role} = TestHelper.create_role(%{name: "user", admin: false})
-    {:ok, admin_role} = TestHelper.create_role(%{name: "admin", admin: true})
-    {:ok, conn: build_conn(), user_role: user_role, admin_role: admin_role}
-  end
-
-  defp valid_create_attrs(role) do
-    Map.put(@valid_create_attrs, :role_id, role.id)
-  end
-
   @valid_create_attrs %{
     email: "some content",
     password: "test1234",
@@ -26,6 +16,16 @@ defmodule Pxblog.UserControllerTest do
     username: "some content"
   }
   @invalid_attrs %{}
+
+  setup do
+    {:ok, user_role} = TestHelper.create_role(%{name: "user", admin: false})
+    {:ok, admin_role} = TestHelper.create_role(%{name: "admin", admin: true})
+    {:ok, conn: build_conn(), user_role: user_role, admin_role: admin_role}
+  end
+
+  defp valid_create_attrs(role) do
+    Map.put(@valid_create_attrs, :role_id, role.id)
+  end
 
   test "lists all entries on index", %{conn: conn} do
     conn = get(conn, user_path(conn, :index))

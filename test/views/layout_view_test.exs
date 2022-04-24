@@ -1,7 +1,6 @@
 defmodule Pxblog.LayoutViewTest do
   use Pxblog.ConnCase, async: true
   alias Pxblog.LayoutView
-  alias Pxblog.User
   alias Pxblog.TestHelper
 
   setup do

@@ -2,7 +2,6 @@ defmodule Pxblog.UserControllerTest do
   use Pxblog.ConnCase
 
   alias Pxblog.User
-  alias Pxblog.Role
   alias Pxblog.TestHelper
 
   @valid_create_attrs %{

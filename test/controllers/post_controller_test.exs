@@ -5,8 +5,6 @@ defmodule Pxblog.PostControllerTest do
   @valid_attrs %{body: "some content", title: "some content"}
   @invalid_attrs %{body: nil}
 
-  alias Pxblog.User
-  alias Pxblog.Role
   alias Pxblog.TestHelper
 
   setup do
@@ -37,15 +35,6 @@ defmodule Pxblog.PostControllerTest do
     post(conn, session_path(conn, :create),
       user: %{username: user.username, password: user.password}
     )
-  end
-
-  defp build_post(user) do
-    changeset =
-      user
-      |> build_assoc(:posts)
-      |> Post.changeset(@valid_attrs)
-
-    Repo.insert!(changeset)
   end
 
   test "lists all entries on index", %{conn: conn, user: user} do
@@ -124,11 +113,9 @@ defmodule Pxblog.PostControllerTest do
 
   test "redirects when trying to edit a post for a different user", %{
     conn: conn,
-    user: user,
     other_user: other_user,
-    post: post,
+    post: post
   } do
-
     conn = get(conn, user_post_path(conn, :edit, other_user, post))
     assert get_flash(conn, :error) == "You are not authorized to modify that post!"
     assert redirected_to(conn) == page_path(conn, :index)
@@ -137,11 +124,9 @@ defmodule Pxblog.PostControllerTest do
 
   test "redirects when trying to delete a post for a different user", %{
     conn: conn,
-    user: user,
     other_user: other_user,
-    post: post,
+    post: post
   } do
-
     conn = delete(conn, user_post_path(conn, :delete, other_user, post))
     assert get_flash(conn, :error) == "You are not authorized to modify that post!"
     assert redirected_to(conn) == page_path(conn, :index)
@@ -150,9 +135,8 @@ defmodule Pxblog.PostControllerTest do
 
   test "redirects when trying to update a post for a different user", %{
     conn: conn,
-    user: user,
     other_user: other_user,
-    post: post,
+    post: post
   } do
     conn = put(conn, user_post_path(conn, :update, other_user, post), post: @valid_attrs)
     assert get_flash(conn, :error) == "You are not authorized to modify that post!"

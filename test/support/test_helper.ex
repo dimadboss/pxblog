@@ -17,6 +17,10 @@ defmodule Pxblog.TestHelper do
         password: password,
         password_confirmation: password_confirmation
       }) do
+    if user = Repo.get_by(User, username: username) do
+      Repo.delete(user)
+    end
+
     role
     |> build_assoc(:users)
     |> User.changeset(%{

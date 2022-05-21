@@ -1,6 +1,8 @@
 defmodule Pxblog.PostControllerTest do
   use Pxblog.ConnCase
 
+  import Pxblog.Factory
+
   alias Pxblog.Post
   @valid_attrs %{body: "some content", title: "some content"}
   @invalid_attrs %{body: nil}
@@ -9,24 +11,11 @@ defmodule Pxblog.PostControllerTest do
 
   setup do
     {:ok, role} = TestHelper.create_role(%{name: "User Role", admin: false})
+    role = insert(:role)
+    user = insert(:user, role: role)
+    other_user = insert(:user, role: role)
 
-    {:ok, user} =
-      TestHelper.create_user(role, %{
-        email: "test@test.com",
-        username: "testuser",
-        password: "test",
-        password_confirmation: "test"
-      })
-
-    {:ok, other_user} =
-      TestHelper.create_user(role, %{
-        email: "test2@test.com",
-        username: "test2",
-        password: "test",
-        password_confirmation: "test"
-      })
-
-    {:ok, post} = TestHelper.create_post(user, %{title: "Test Post", body: "Test Body"})
+    post = insert(:post, user: user)
     conn = build_conn() |> login_user(user)
     {:ok, conn: conn, user: user, other_user: other_user, role: role, post: post}
   end

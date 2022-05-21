@@ -22,4 +22,12 @@ defmodule Pxblog.Factory do
       role: build(:role)
     }
   end
+
+  def post_factory do
+    %Post{
+      title: "Some Post",
+      body: "And the body of some post",
+      user: build(:user)
+    }
+  end
 end

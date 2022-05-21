@@ -20,24 +20,10 @@ defmodule Pxblog.UserControllerTest do
 
   setup do
     user_role = insert(:role)
-
-    {:ok, nonadmin_user} =
-      TestHelper.create_user(user_role, %{
-        email: "nonadmin@test.com",
-        username: "nonadmin",
-        password: "test",
-        password_confirmation: "test"
-      })
+    nonadmin_user = insert(:user, role: user_role)
 
     admin_role = insert(:role, admin: true)
-
-    {:ok, admin_user} =
-      TestHelper.create_user(admin_role, %{
-        email: "admin@test.com",
-        username: "admin",
-        password: "test",
-        password_confirmation: "test"
-      })
+    admin_user = insert(:user, role: admin_role)
 
     {:ok,
      conn: build_conn(),

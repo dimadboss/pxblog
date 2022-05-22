@@ -7,17 +7,23 @@ defmodule Pxblog.PostControllerTest do
   @valid_attrs %{body: "some content", title: "some content"}
   @invalid_attrs %{body: nil}
 
-  alias Pxblog.TestHelper
-
   setup do
-    {:ok, role} = TestHelper.create_role(%{name: "User Role", admin: false})
     role = insert(:role)
+    admin_role = insert(:role, admin: true)
+    admin_user = insert(:user, role: admin_role)
     user = insert(:user, role: role)
     other_user = insert(:user, role: role)
 
     post = insert(:post, user: user)
     conn = build_conn() |> login_user(user)
-    {:ok, conn: conn, user: user, other_user: other_user, role: role, post: post}
+
+    {:ok,
+     conn: conn,
+     user: user,
+     other_user: other_user,
+     admin_user: admin_user,
+     role: role,
+     post: post}
   end
 
   defp login_user(conn, user) do
@@ -136,16 +142,9 @@ defmodule Pxblog.PostControllerTest do
   test "redirects when trying to delete a post for a different user (other user)", %{
     conn: conn,
     role: role,
-    post: post
+    post: post,
+    other_user: other_user
   } do
-    {:ok, other_user} =
-      TestHelper.create_user(role, %{
-        email: "test2@test.com",
-        username: "test2",
-        password: "test",
-        password_confirmation: "test"
-      })
-
     conn = delete(conn, user_post_path(conn, :delete, other_user, post))
     assert get_flash(conn, :error) == "You are not authorized to modify that post!"
     assert redirected_to(conn) == page_path(conn, :index)
@@ -155,20 +154,11 @@ defmodule Pxblog.PostControllerTest do
   test "renders form for editing chosen resource when logged in as admin", %{
     conn: conn,
     user: user,
-    post: post
+    post: post,
+    admin_user: admin_user
   } do
-    {:ok, role} = TestHelper.create_role(%{name: "Admin", admin: true})
-
-    {:ok, admin} =
-      TestHelper.create_user(role, %{
-        username: "admin",
-        email: "admin@test.com",
-        password: "test",
-        password_confirmation: "test"
-      })
-
     conn =
-      login_user(conn, admin)
+      login_user(conn, admin_user)
       |> get(user_post_path(conn, :edit, user, post))
 
     assert html_response(conn, 200) =~ "Edit post"
@@ -177,20 +167,11 @@ defmodule Pxblog.PostControllerTest do
   test "updates chosen resource and redirects when data is valid when logged in as admin", %{
     conn: conn,
     user: user,
-    post: post
+    post: post,
+    admin_user: admin_user
   } do
-    {:ok, role} = TestHelper.create_role(%{name: "Admin", admin: true})
-
-    {:ok, admin} =
-      TestHelper.create_user(role, %{
-        username: "admin",
-        email: "admin@test.com",
-        password: "test",
-        password_confirmation: "test"
-      })
-
     conn =
-      login_user(conn, admin)
+      login_user(conn, admin_user)
       |> put(user_post_path(conn, :update, user, post), post: @valid_attrs)
 
     assert redirected_to(conn) == user_post_path(conn, :show, user, post)
@@ -198,37 +179,22 @@ defmodule Pxblog.PostControllerTest do
   end
 
   test "does not update chosen resource and renders errors when data is invalid when logged in as admin",
-       %{conn: conn, user: user, post: post} do
-    {:ok, role} = TestHelper.create_role(%{name: "Admin", admin: true})
-
-    {:ok, admin} =
-      TestHelper.create_user(role, %{
-        username: "admin",
-        email: "admin@test.com",
-        password: "test",
-        password_confirmation: "test"
-      })
-
+       %{conn: conn, user: user, post: post, admin_user: admin_user} do
     conn =
-      login_user(conn, admin)
+      login_user(conn, admin_user)
       |> put(user_post_path(conn, :update, user, post), post: %{"body" => nil})
 
     assert html_response(conn, 200) =~ "Edit post"
   end
 
-  test "deletes chosen resource when logged in as admin", %{conn: conn, user: user, post: post} do
-    {:ok, role} = TestHelper.create_role(%{name: "Admin", admin: true})
-
-    {:ok, admin} =
-      TestHelper.create_user(role, %{
-        username: "admin",
-        email: "admin@test.com",
-        password: "test",
-        password_confirmation: "test"
-      })
-
+  test "deletes chosen resource when logged in as admin", %{
+    conn: conn,
+    user: user,
+    post: post,
+    admin_user: admin_user
+  } do
     conn =
-      login_user(conn, admin)
+      login_user(conn, admin_user)
       |> delete(user_post_path(conn, :delete, user, post))
 
     assert redirected_to(conn) == user_post_path(conn, :index, user)

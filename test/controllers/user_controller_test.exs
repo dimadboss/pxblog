@@ -2,8 +2,6 @@ defmodule Pxblog.UserControllerTest do
   use Pxblog.ConnCase
 
   alias Pxblog.User
-  alias Pxblog.TestHelper
-
   import Pxblog.Factory
 
   @valid_create_attrs %{
@@ -21,6 +19,7 @@ defmodule Pxblog.UserControllerTest do
   setup do
     user_role = insert(:role)
     nonadmin_user = insert(:user, role: user_role)
+    other_nonadmin_user = insert(:user, role: user_role)
 
     admin_role = insert(:role, admin: true)
     admin_user = insert(:user, role: admin_role)
@@ -30,6 +29,7 @@ defmodule Pxblog.UserControllerTest do
      admin_role: admin_role,
      user_role: user_role,
      nonadmin_user: nonadmin_user,
+     other_nonadmin_user: other_nonadmin_user,
      admin_user: admin_user}
   end
 
@@ -194,44 +194,41 @@ defmodule Pxblog.UserControllerTest do
   end
 
   @tag admin: true
-  test "deletes chosen resource when logged in as that user", %{conn: conn, user_role: user_role} do
-    {:ok, user} = TestHelper.create_user(user_role, @valid_create_attrs)
-
+  test "deletes chosen resource when logged in as that user", %{
+    conn: conn,
+    nonadmin_user: nonadmin_user
+  } do
     conn =
-      login_user(conn, user)
-      |> delete(user_path(conn, :delete, user))
+      login_user(conn, nonadmin_user)
+      |> delete(user_path(conn, :delete, nonadmin_user))
 
     assert redirected_to(conn) == user_path(conn, :index)
-    refute Repo.get(User, user.id)
+    refute Repo.get(User, nonadmin_user.id)
   end
 
   @tag admin: true
   test "deletes chosen resource when logged in as an admin", %{
     conn: conn,
-    user_role: user_role,
-    admin_user: admin_user
+    admin_user: admin_user,
+    nonadmin_user: nonadmin_user
   } do
-    {:ok, user} = TestHelper.create_user(user_role, @valid_create_attrs)
-
     conn =
       login_user(conn, admin_user)
-      |> delete(user_path(conn, :delete, user))
+      |> delete(user_path(conn, :delete, nonadmin_user))
 
     assert redirected_to(conn) == user_path(conn, :index)
-    refute Repo.get(User, user.id)
+    refute Repo.get(User, nonadmin_user.id)
   end
 
   @tag admin: true
   test "redirects away from deleting chosen resource when logged in as a different user", %{
     conn: conn,
-    user_role: user_role,
-    nonadmin_user: nonadmin_user
+    nonadmin_user: nonadmin_user,
+    other_nonadmin_user: other_nonadmin_user
   } do
-    {:ok, user} = TestHelper.create_user(user_role, @valid_create_attrs)
-
     conn =
       login_user(conn, nonadmin_user)
-      |> delete(user_path(conn, :delete, user))
+      |> delete(user_path(conn, :delete, other_nonadmin_user))
 
     assert get_flash(conn, :error) == "You are not authorized to modify that user!"
     assert redirected_to(conn) == page_path(conn, :index)

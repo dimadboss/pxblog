@@ -1,18 +1,12 @@
 defmodule Pxblog.LayoutViewTest do
   use Pxblog.ConnCase, async: true
   alias Pxblog.LayoutView
-  alias Pxblog.TestHelper
+
+  import Pxblog.Factory
 
   setup do
-    {:ok, role} = TestHelper.create_role(%{name: "User Role", admin: false})
-
-    {:ok, user} =
-      TestHelper.create_user(role, %{
-        email: "test@test.com",
-        username: "testuser",
-        password: "test",
-        password_confirmation: "test"
-      })
+    role = insert(:role)
+    user = insert(:user, role: role)
 
     {:ok, conn: build_conn(), user: user}
   end

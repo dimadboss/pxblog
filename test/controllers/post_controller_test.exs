@@ -141,7 +141,6 @@ defmodule Pxblog.PostControllerTest do
 
   test "redirects when trying to delete a post for a different user (other user)", %{
     conn: conn,
-    role: role,
     post: post,
     other_user: other_user
   } do

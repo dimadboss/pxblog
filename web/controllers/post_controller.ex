@@ -58,8 +58,16 @@ defmodule Pxblog.PostController do
   end
 
   def show(conn, %{"id" => id}) do
-    post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
-    render(conn, "show.html", post: post)
+    post =
+      Repo.get!(assoc(conn.assigns[:user], :posts), id)
+      |> Repo.preload(:comments)
+
+    comment_changeset =
+      post
+      |> build_assoc(:comments)
+      |> Pxblog.Comment.changeset()
+
+    render(conn, "show.html", post: post, comment_changeset: comment_changeset)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -98,7 +106,8 @@ defmodule Pxblog.PostController do
   defp authorize_user(conn, _opts) do
     user = get_session(conn, :current_user)
 
-    if user && Integer.to_string(user.id) == conn.params["user_id"]  || Pxblog.RoleChecker.is_admin?(user) do
+    if (user && Integer.to_string(user.id) == conn.params["user_id"]) ||
+         Pxblog.RoleChecker.is_admin?(user) do
       conn
     else
       conn

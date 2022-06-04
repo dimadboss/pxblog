@@ -6,6 +6,13 @@ defmodule Pxblog.PostController do
   plug(:assign_user)
   plug(:authorize_user when action in [:new, :create, :update, :edit, :delete])
 
+  # Add to the top of the controller with the other plug declarations
+  plug(:set_authorization_flag)
+  # Add to the bottom with the other plug definitions
+  defp set_authorization_flag(conn, _opts) do
+    assign(conn, :author_or_admin, is_authorized_user?(conn))
+  end
+
   defp assign_user(conn, _opts) do
     case conn.params do
       %{"user_id" => user_id} ->
@@ -104,10 +111,7 @@ defmodule Pxblog.PostController do
   end
 
   defp authorize_user(conn, _opts) do
-    user = get_session(conn, :current_user)
-
-    if (user && Integer.to_string(user.id) == conn.params["user_id"]) ||
-         Pxblog.RoleChecker.is_admin?(user) do
+    if is_authorized_user?(conn) do
       conn
     else
       conn
@@ -115,5 +119,12 @@ defmodule Pxblog.PostController do
       |> redirect(to: page_path(conn, :index))
       |> halt()
     end
+  end
+
+  defp is_authorized_user?(conn) do
+    user = get_session(conn, :current_user)
+
+    user &&
+      (Integer.to_string(user.id) == conn.params["user_id"] || Pxblog.RoleChecker.is_admin?(user))
   end
 end

@@ -67,6 +67,20 @@ defmodule Pxblog.CommentControllerTest do
     assert Repo.get_by(Comment, %{id: comment.id, approved: true})
   end
 
+  test "does not update chosen resource and redirects when data is invalid and logged in as the author", %{
+    conn: conn,
+    user: user,
+    post: post,
+    comment: comment
+  } do
+    conn =
+      login_user(conn, user)
+      |> put(post_comment_path(conn, :update, post, comment), comment: @invalid_attrs)
+
+    assert redirected_to(conn) == user_post_path(conn, :show, user, post)
+    assert Repo.get_by(Comment, %{id: comment.id, approved: false})
+  end
+
   test "does not update the comment when not logged in as an authorized user", %{
     conn: conn,
     post: post,

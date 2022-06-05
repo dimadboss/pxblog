@@ -6,6 +6,8 @@ defmodule Pxblog.Post do
     field(:body, :string)
     belongs_to(:user, Pxblog.User)
     has_many(:comments, Pxblog.Comment)
+    has_many(:likes, Pxblog.Like)
+    field(:likes_count, :integer, virtual: true)
     timestamps()
   end
 

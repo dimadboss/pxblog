@@ -41,4 +41,13 @@ defmodule Pxblog.LikeTest do
     assert length(post.likes) == 1
     assert hd(post.likes).post_id == like.post_id
   end
+
+  test "creates two likes associated with a post and check like count" do
+    post = insert(:post) |> Repo.preload(:likes)
+    assert length(post.likes) == 0
+    like = insert(:like, post: post, comment: nil)
+    insert(:like, post: post, comment: nil)
+    post = Repo.get!(Post, like.post_id) |> Repo.preload(:likes)
+    assert length(post.likes) == 2
+  end
 end

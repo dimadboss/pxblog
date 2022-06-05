@@ -3,6 +3,7 @@ defmodule Pxblog.LikeTest do
 
   alias Pxblog.Like
   alias Pxblog.Post
+  alias Pxblog.Comment
 
   import Pxblog.Factory
 
@@ -49,5 +50,23 @@ defmodule Pxblog.LikeTest do
     insert(:like, post: post, comment: nil)
     post = Repo.get!(Post, like.post_id) |> Repo.preload(:likes)
     assert length(post.likes) == 2
+  end
+
+  test "creates a like associated with a comment and check like count" do
+    comment = insert(:comment) |> Repo.preload(:likes)
+    assert length(comment.likes) == 0
+    like = insert(:like, post: nil, comment: comment)
+    comment = Repo.get!(Comment, like.comment_id) |> Repo.preload(:likes)
+    assert length(comment.likes) == 1
+    assert hd(comment.likes).comment_id == like.comment_id
+  end
+
+  test "creates two likes associated with a comment and check like count" do
+    comment = insert(:comment) |> Repo.preload(:likes)
+    assert length(comment.likes) == 0
+    like = insert(:like, post: nil, comment: comment)
+    insert(:like, post: nil, comment: comment)
+    comment = Repo.get!(Comment, like.comment_id) |> Repo.preload(:likes)
+    assert length(comment.likes) == 2
   end
 end

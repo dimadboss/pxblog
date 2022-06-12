@@ -19,6 +19,7 @@ defmodule Pxblog.Post do
     struct
     |> cast(params, [:title, :body])
     |> validate_required([:title, :body])
+    |> assoc_constraint(:user)
     |> strip_unsafe_body(params)
   end
 

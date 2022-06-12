@@ -16,6 +16,7 @@ defmodule Pxblog.Comment do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:author, :body, :approved])
+    |> assoc_constraint(:post)
     |> validate_required([:author, :body, :approved])
   end
 end

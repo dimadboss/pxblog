@@ -23,6 +23,7 @@ defmodule Pxblog.User do
     struct
     |> cast(params, [:username, :email, :password, :password_confirmation, :role_id])
     |> validate_required([:username, :email, :password, :password_confirmation, :role_id])
+    |> assoc_constraint(:role)
     |> hash_password
   end
 

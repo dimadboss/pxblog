@@ -5,6 +5,7 @@ defmodule Pxblog.Factory do
   alias Pxblog.User
   alias Pxblog.Post
   alias Pxblog.Comment
+  alias Pxblog.Like
 
   def role_factory do
     %Role{
@@ -38,6 +39,15 @@ defmodule Pxblog.Factory do
       body: "This is a sample comment",
       approved: false,
       post: build(:post)
+    }
+  end
+
+  def like_factory do
+    comment = build(:comment)
+    %Like{
+      user: build(:user),
+      post: comment.post,
+      comment: comment,
     }
   end
 end

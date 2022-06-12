@@ -2,11 +2,11 @@ defmodule Pxblog.Comment do
   use Pxblog.Web, :model
 
   schema "comments" do
-    field :author, :string
-    field :body, :string
-    field :approved, :boolean, default: false
-    belongs_to :post, Pxblog.Post
-
+    field(:author, :string)
+    field(:body, :string)
+    field(:approved, :boolean, default: false)
+    belongs_to(:post, Pxblog.Post)
+    has_many(:likes, Pxblog.Like)
     timestamps()
   end
 

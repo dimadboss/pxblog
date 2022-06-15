@@ -6,6 +6,7 @@ defmodule Pxblog.Factory do
   alias Pxblog.Post
   alias Pxblog.Comment
   alias Pxblog.Like
+  alias Pxblog.Tag
 
   def role_factory do
     %Role{
@@ -48,6 +49,13 @@ defmodule Pxblog.Factory do
       user: build(:user),
       post: comment.post,
       comment: comment,
+    }
+  end
+
+  def tag_factory do
+    %Tag{
+      name: "Test Tag",
+      posts: build_list(10, :post)
     }
   end
 end

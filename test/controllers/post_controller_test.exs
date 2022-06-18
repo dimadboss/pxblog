@@ -36,6 +36,24 @@ defmodule Pxblog.PostControllerTest do
     delete(conn, session_path(conn, :delete, user))
   end
 
+  test "lists all entries on index", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user))
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "Some Post"
+  end
+
+  test "lists all entries on index with user search query", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{user: "Usernametext"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "Some Post"
+  end
+
+  test "lists all entries on index with user search query (no posts)", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{user: "Noone"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "Some Post"
+  end
+
   test "lists all entries on index with title search query", %{conn: conn, user: user} do
     conn = get(conn, user_post_path(conn, :index, user,  %{title: "Some Post"}))
     assert html_response(conn, 200) =~ "Listing posts"

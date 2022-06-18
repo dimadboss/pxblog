@@ -17,7 +17,7 @@ defmodule Pxblog.Factory do
 
   def user_factory do
     %User{
-      username: sequence(:username, &"User #{&1}"),
+      username: sequence(:username, &"Usernametext #{&1}"),
       email: "test@test.com",
       password: "test1234",
       password_confirmation: "test1234",

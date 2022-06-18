@@ -10,6 +10,7 @@ defmodule Pxblog.Queries.ListPosts do
     Post
     |> with_title(params)
     |> with_body(params)
+    |> with_user(params)
     |> Repo.all()
   end
 
@@ -38,4 +39,19 @@ defmodule Pxblog.Queries.ListPosts do
   end
 
   defp with_body(query, _), do: query
+
+  # --------------------- user ------------------------
+  defp with_user(query, %{"user" => nil}), do: query
+
+  defp with_user(query, %{"user" => user}) when is_binary(user) do
+    user = "%" <> String.trim(user) <> "%"
+
+    from(i in query,
+      preload: :user,
+      join: usr in assoc(i, :user),
+      where: ilike(usr.username, ^user)
+    )
+  end
+
+  defp with_user(query, _), do: query
 end

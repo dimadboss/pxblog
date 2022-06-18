@@ -1,6 +1,8 @@
 defmodule Pxblog.Post do
   use Pxblog.Web, :model
 
+  alias Pxblog.Tag
+
   schema "posts" do
     field(:title, :string)
     field(:body, :string)
@@ -8,6 +10,7 @@ defmodule Pxblog.Post do
     has_many(:comments, Pxblog.Comment)
     has_many(:likes, Pxblog.Like)
     field(:likes_count, :integer, virtual: true)
+    many_to_many(:tags, Pxblog.Tag, join_through: "posts_tags")
     timestamps()
   end
 
@@ -18,6 +21,7 @@ defmodule Pxblog.Post do
     struct
     |> cast(params, [:title, :body])
     |> validate_required([:title, :body])
+    |> assoc_constraint(:user)
     |> strip_unsafe_body(params)
   end
 

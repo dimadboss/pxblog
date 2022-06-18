@@ -15,6 +15,7 @@ defmodule Pxblog.Like do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [])
+    |> assoc_constraint(:user)
     |> validate_required([])
   end
 end

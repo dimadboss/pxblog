@@ -1,7 +1,6 @@
 defmodule Pxblog.Tag do
   use Pxblog.Web, :model
 
-  alias Pxblog.Post
   alias Pxblog.Repo
 
   schema "tags" do
@@ -13,8 +12,6 @@ defmodule Pxblog.Tag do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params \\ :empty)
-
   def changeset(struct, %{"posts" => _} = params) do
     struct
     |> Repo.preload(:posts)
@@ -25,10 +22,8 @@ defmodule Pxblog.Tag do
 
   def changeset(struct, params) do
     struct
-    #|> Repo.preload(:posts)
     |> cast(params, [:name])
     |> validate_required([:name])
-    #|> put_assoc(:posts, [])
   end
 
 

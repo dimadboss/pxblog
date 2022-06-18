@@ -24,5 +24,6 @@ defmodule Pxblog.TagTest do
     first_post = hd(tag.posts) |> Repo.preload(:tags)
     assert first_post.title == "Some Post"
     assert hd(first_post.tags).name == "Test Tag"
+    assert hd(first_post.tags).id == tag.id
   end
 end

@@ -36,9 +36,28 @@ defmodule Pxblog.PostControllerTest do
     delete(conn, session_path(conn, :delete, user))
   end
 
-  test "lists all entries on index", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user))
+  test "lists all entries on index with title search query", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{title: "Some Post"}))
     assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "Some Post"
+  end
+
+  test "lists all entries on index with title search query (no posts)", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{title: "Some Other Post"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "Some Post"
+  end
+
+  test "lists all entries on index with body search query", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{body: "And the body of some post"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "And the body of some post"
+  end
+
+  test "lists all entries on index with body search query (no posts)", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user,  %{title: "And other the body of some post"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "And the body of some post"
   end
 
   test "renders form for new resources", %{conn: conn, user: user} do

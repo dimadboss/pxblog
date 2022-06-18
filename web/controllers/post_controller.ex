@@ -33,8 +33,8 @@ defmodule Pxblog.PostController do
     |> halt
   end
 
-  def index(conn, _params) do
-    posts = Repo.all(assoc(conn.assigns[:user], :posts))
+  def index(conn, params) do
+    posts = Pxblog.Queries.ListPosts.process(params) #Repo.all(assoc(conn.assigns[:user], :posts))
     render(conn, "index.html", posts: posts)
   end
 

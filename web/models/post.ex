@@ -1,8 +1,6 @@
 defmodule Pxblog.Post do
   use Pxblog.Web, :model
 
-  alias Pxblog.Tag
-
   schema "posts" do
     field(:title, :string)
     field(:body, :string)

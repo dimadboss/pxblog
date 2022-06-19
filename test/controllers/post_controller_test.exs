@@ -15,6 +15,11 @@ defmodule Pxblog.PostControllerTest do
     other_user = insert(:user, role: role)
 
     post = insert(:post, user: user)
+
+
+    post_for_tag = insert(:post, user: user)
+    tag = insert(:tag, posts: [post_for_tag])
+
     conn = build_conn() |> login_user(user)
 
     {:ok,
@@ -23,7 +28,8 @@ defmodule Pxblog.PostControllerTest do
      other_user: other_user,
      admin_user: admin_user,
      role: role,
-     post: post}
+     post: post,
+     tag: tag}
   end
 
   defp login_user(conn, user) do
@@ -42,38 +48,52 @@ defmodule Pxblog.PostControllerTest do
     assert html_response(conn, 200) =~ "Some Post"
   end
 
+  test "lists all entries on index with tag search query", %{conn: conn, user: user, tag: tag} do
+    conn = get(conn, user_post_path(conn, :index, user, %{tag: tag.name}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "Some Post"
+  end
+
+  test "lists all entries on index with tag search query (no posts)", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user, %{tag: "fake tag"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "Some Post"
+  end
+
   test "lists all entries on index with user search query", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{user: "Usernametext"}))
+    conn = get(conn, user_post_path(conn, :index, user, %{user: "Usernametext"}))
     assert html_response(conn, 200) =~ "Listing posts"
     assert html_response(conn, 200) =~ "Some Post"
   end
 
   test "lists all entries on index with user search query (no posts)", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{user: "Noone"}))
+    conn = get(conn, user_post_path(conn, :index, user, %{user: "Noone"}))
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "Some Post"
   end
 
   test "lists all entries on index with title search query", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{title: "Some Post"}))
+    conn = get(conn, user_post_path(conn, :index, user, %{title: "Some Post"}))
     assert html_response(conn, 200) =~ "Listing posts"
     assert html_response(conn, 200) =~ "Some Post"
   end
 
   test "lists all entries on index with title search query (no posts)", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{title: "Some Other Post"}))
+    conn = get(conn, user_post_path(conn, :index, user, %{title: "Some Other Post"}))
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "Some Post"
   end
 
   test "lists all entries on index with body search query", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{body: "And the body of some post"}))
+    conn = get(conn, user_post_path(conn, :index, user, %{body: "And the body of some post"}))
     assert html_response(conn, 200) =~ "Listing posts"
     assert html_response(conn, 200) =~ "And the body of some post"
   end
 
   test "lists all entries on index with body search query (no posts)", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user,  %{title: "And other the body of some post"}))
+    conn =
+      get(conn, user_post_path(conn, :index, user, %{title: "And other the body of some post"}))
+
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "And the body of some post"
   end

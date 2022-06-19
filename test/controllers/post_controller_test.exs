@@ -16,7 +16,6 @@ defmodule Pxblog.PostControllerTest do
 
     post = insert(:post, user: user)
 
-
     post_for_tag = insert(:post, user: user)
     tag = insert(:tag, posts: [post_for_tag])
 
@@ -66,7 +65,10 @@ defmodule Pxblog.PostControllerTest do
     assert html_response(conn, 200) =~ "Some Post"
   end
 
-  test "lists all entries on index with user search query (no posts)", %{conn: conn, other_user: other_user} do
+  test "lists all entries on index with user search query (no posts)", %{
+    conn: conn,
+    other_user: other_user
+  } do
     conn = get(conn, user_post_path(conn, :index, other_user))
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "Some Post"
@@ -92,7 +94,29 @@ defmodule Pxblog.PostControllerTest do
 
   test "lists all entries on index with body search query (no posts)", %{conn: conn, user: user} do
     conn =
-      get(conn, user_post_path(conn, :index, user, %{title: "And other the body of some post"}))
+      get(conn, user_post_path(conn, :index, user, %{body: "And other the body of some post"}))
+
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "And the body of some post"
+  end
+
+  test "lists all entries on index with date search query", %{conn: conn, user: user} do
+    conn = get(conn, user_post_path(conn, :index, user, %{body: "And the body of some post"}))
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "And the body of some post"
+  end
+
+  test "lists all entries on index with date search query (today)", %{conn: conn, user: user} do
+    date = Date.to_string(Date.utc_today())
+    conn = get(conn, user_post_path(conn, :index, user, %{date: date}))
+
+    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "And the body of some post"
+  end
+
+  test "lists all entries on index with date search query (no posts)", %{conn: conn, user: user} do
+    date = Date.to_string(~D[2000-01-01])
+    conn = get(conn, user_post_path(conn, :index, user, %{date: date}))
 
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "And the body of some post"

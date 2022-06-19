@@ -12,6 +12,7 @@ defmodule Pxblog.Queries.ListPosts do
     |> with_title(params)
     |> with_body(params)
     |> with_tag(params)
+    |> with_date(params)
     |> Repo.all()
   end
 
@@ -63,4 +64,17 @@ defmodule Pxblog.Queries.ListPosts do
   end
 
   defp with_tag(query, _), do: query
+
+  # --------------------- date ------------------------
+  defp with_date(query, %{"date" => nil}), do: query
+
+  defp with_date(query, %{"date" => date}) do
+    {_, cdate} = Ecto.Date.cast(date)
+
+    from(i in query,
+      where: fragment("date(inserted_at) = ?", ^cdate)
+    )
+  end
+
+  defp with_date(query, _), do: query
 end

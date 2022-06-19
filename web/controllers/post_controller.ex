@@ -34,7 +34,7 @@ defmodule Pxblog.PostController do
   end
 
   def index(conn, params) do
-    posts = Pxblog.Queries.ListPosts.process(params)
+    posts = Pxblog.Queries.ListPosts.process(conn.assigns[:user], params)
     render(conn, "index.html", posts: posts)
   end
 

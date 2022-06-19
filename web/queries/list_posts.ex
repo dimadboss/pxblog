@@ -6,11 +6,11 @@ defmodule Pxblog.Queries.ListPosts do
   alias Pxblog.Post
   alias Pxblog.Repo
 
-  def process(params) do
+  def process(user, params) do
     Post
+    |> with_user(user.id)
     |> with_title(params)
     |> with_body(params)
-    |> with_user(params)
     |> with_tag(params)
     |> Repo.all()
   end
@@ -42,19 +42,12 @@ defmodule Pxblog.Queries.ListPosts do
   defp with_body(query, _), do: query
 
   # --------------------- user ------------------------
-  defp with_user(query, %{"user" => nil}), do: query
 
-  defp with_user(query, %{"user" => user}) when is_binary(user) do
-    user = "%" <> String.trim(user) <> "%"
-
+  defp with_user(query, user_id) do
     from(i in query,
-      preload: :user,
-      join: usr in assoc(i, :user),
-      where: ilike(usr.username, ^user)
+      where: i.user_id == ^user_id
     )
   end
-
-  defp with_user(query, _), do: query
 
   # --------------------- tag ------------------------
   defp with_tag(query, %{"tag" => nil}), do: query

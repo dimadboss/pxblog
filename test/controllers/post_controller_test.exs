@@ -61,13 +61,13 @@ defmodule Pxblog.PostControllerTest do
   end
 
   test "lists all entries on index with user search query", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user, %{user: "Usernametext"}))
+    conn = get(conn, user_post_path(conn, :index, user))
     assert html_response(conn, 200) =~ "Listing posts"
     assert html_response(conn, 200) =~ "Some Post"
   end
 
-  test "lists all entries on index with user search query (no posts)", %{conn: conn, user: user} do
-    conn = get(conn, user_post_path(conn, :index, user, %{user: "Noone"}))
+  test "lists all entries on index with user search query (no posts)", %{conn: conn, other_user: other_user} do
+    conn = get(conn, user_post_path(conn, :index, other_user))
     assert html_response(conn, 200) =~ "Listing posts"
     refute html_response(conn, 200) =~ "Some Post"
   end

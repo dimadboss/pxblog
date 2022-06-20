@@ -33,9 +33,21 @@ defmodule Pxblog.PostController do
     |> halt
   end
 
+  defmodule IndexSearchParams do
+    use Params.Schema, %{
+      title: :string,
+      body: :string,
+      tag: :string,
+      page!: :integer,
+      page_size!: :integer
+    }
+  end
+
   def index(conn, params) do
-    posts = Pxblog.Queries.ListPosts.process(conn.assigns[:user], params)
-    render(conn, "index.html", posts: posts)
+    with {:ok, params} <- ApplyParams.do_apply(IndexSearchParams, params) do
+      posts = Pxblog.Queries.ListPosts.process(conn.assigns[:user], params)
+      render(conn, "index.html", posts: posts)
+    end
   end
 
   def new(conn, _params) do

@@ -7,19 +7,20 @@ defmodule Pxblog.Queries.ListPosts do
   alias Pxblog.Repo
 
   def process(user, params) do
+    #IO.puts(params)
     Post
     |> with_user(user.id)
     |> with_title(params)
     |> with_body(params)
     |> with_tag(params)
     |> with_date(params)
-    |> Repo.all()
+    |> Repo.paginate(params)
   end
 
   # --------------------- title ------------------------
-  defp with_title(query, %{"title" => nil}), do: query
+  defp with_title(query, %{:title => nil}), do: query
 
-  defp with_title(query, %{"title" => title}) when is_binary(title) do
+  defp with_title(query, %{:title => title}) when is_binary(title) do
     title = "%" <> String.trim(title) <> "%"
 
     from(i in query,
@@ -30,9 +31,9 @@ defmodule Pxblog.Queries.ListPosts do
   defp with_title(query, _), do: query
 
   # --------------------- body ------------------------
-  defp with_body(query, %{"body" => nil}), do: query
+  defp with_body(query, %{:body => nil}), do: query
 
-  defp with_body(query, %{"body" => body}) when is_binary(body) do
+  defp with_body(query, %{:body => body}) when is_binary(body) do
     body = "%" <> String.trim(body) <> "%"
 
     from(i in query,
@@ -51,9 +52,9 @@ defmodule Pxblog.Queries.ListPosts do
   end
 
   # --------------------- tag ------------------------
-  defp with_tag(query, %{"tag" => nil}), do: query
+  defp with_tag(query, %{:tag => nil}), do: query
 
-  defp with_tag(query, %{"tag" => tag}) when is_binary(tag) do
+  defp with_tag(query, %{:tag => tag}) when is_binary(tag) do
     tag = "%" <> String.trim(tag) <> "%"
 
     from(i in query,
@@ -66,9 +67,9 @@ defmodule Pxblog.Queries.ListPosts do
   defp with_tag(query, _), do: query
 
   # --------------------- date ------------------------
-  defp with_date(query, %{"date" => nil}), do: query
+  defp with_date(query, %{:date => nil}), do: query
 
-  defp with_date(query, %{"date" => date}) do
+  defp with_date(query, %{:date => date}) do
     {_, cdate} = Ecto.Date.cast(date)
 
     from(i in query,

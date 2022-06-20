@@ -29,7 +29,7 @@ defmodule Pxblog.Web do
   def controller do
     quote do
       use Phoenix.Controller
-
+      alias Pxblog.ApplyParams
       alias Pxblog.Repo
       import Ecto
       import Ecto.Query

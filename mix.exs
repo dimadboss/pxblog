@@ -55,7 +55,9 @@ defmodule Pxblog.Mixfile do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 2.3"},
       {:ex_machina, "~> 1.0"},
-      {:earmark, "~> 1.0.1"}
+      {:earmark, "~> 1.0.1"},
+      {:scrivener_ecto, "~> 1.3"},
+      {:params, "~> 2.2"},
     ]
   end
 

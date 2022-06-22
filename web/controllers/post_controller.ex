@@ -80,7 +80,7 @@ defmodule Pxblog.PostController do
   def show(conn, %{"id" => id}) do
     post =
       Repo.get!(assoc(conn.assigns[:user], :posts), id)
-      |> Repo.preload(:comments)
+      |> Repo.preload([:comments, :likes, :tags, :user])
 
     comment_changeset =
       post
@@ -97,7 +97,10 @@ defmodule Pxblog.PostController do
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do
-    post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
+    post =
+      Repo.get!(assoc(conn.assigns[:user], :posts), id)
+      |> Repo.preload([:comments, :likes, :tags, :user])
+
     changeset = Post.changeset(post, post_params)
 
     case Repo.update(changeset) do

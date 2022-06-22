@@ -7,7 +7,7 @@ defmodule Pxblog.CommentController do
   plug(:set_post_and_authorize_user when action in [:update, :delete])
 
   def create(conn, %{"comment" => comment_params, "post_id" => post_id}) do
-    post = Repo.get!(Post, post_id) |> Repo.preload([:user, :comments])
+    post = Repo.get!(Post, post_id) |> Repo.preload([:comments, :likes, :tags, :user])
 
     changeset =
       post
@@ -30,8 +30,8 @@ defmodule Pxblog.CommentController do
   end
 
   def update(conn, %{"id" => id, "post_id" => post_id, "comment" => comment_params}) do
-    post = Repo.get!(Post, post_id) |> Repo.preload(:user)
-    comment = Repo.get!(Comment, id)
+    post = Repo.get!(Post, post_id) |> Repo.preload([:comments, :likes, :tags, :user])
+    comment = Repo.get!(Comment, id) |> Repo.preload([:post, :likes])
     changeset = Comment.changeset(comment, comment_params)
 
     case Repo.update(changeset) do
@@ -57,7 +57,9 @@ defmodule Pxblog.CommentController do
   end
 
   defp set_post(conn) do
-    post = Repo.get!(Post, conn.params["post_id"]) |> Repo.preload(:user)
+    post =
+      Repo.get!(Post, conn.params["post_id"]) |> Repo.preload([:comments, :likes, :tags, :user])
+
     assign(conn, :post, post)
   end
 

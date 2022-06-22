@@ -7,7 +7,7 @@ defmodule Pxblog.TagController do
   plug(:set_post_and_authorize_user when action in [:update, :delete])
 
   def create(conn, %{"tag" => tag_params, "post_id" => post_id}) do
-    post = Repo.get!(Post, post_id) |> Repo.preload([:user, :tags, :comments])
+    post = Repo.get!(Post, post_id) |> Repo.preload([:user, :tags, :comments, :likes])
 
     changeset =
       post
@@ -30,7 +30,7 @@ defmodule Pxblog.TagController do
   end
 
   def update(conn, %{"id" => id, "post_id" => post_id, "tag" => tag_params}) do
-    post = Repo.get!(Post, post_id) |> Repo.preload(:user)
+    post = Repo.get!(Post, post_id) |> Repo.preload([:user, :tags, :comments, :likes])
     tag = Repo.get!(Tag, id)
     changeset = Tag.changeset(tag, tag_params)
 
@@ -48,7 +48,7 @@ defmodule Pxblog.TagController do
   end
 
   def delete(conn, %{"id" => id, "post_id" => post_id}) do
-    post = Repo.get!(Post, post_id) |> Repo.preload(:user)
+    post = Repo.get!(Post, post_id) |> Repo.preload([:user, :tags, :comments, :likes])
     Repo.get!(Tag, id) |> Repo.delete!()
 
     conn
@@ -57,7 +57,7 @@ defmodule Pxblog.TagController do
   end
 
   defp set_post(conn) do
-    post = Repo.get!(Post, conn.params["post_id"]) |> Repo.preload(:user)
+    post = Repo.get!(Post, conn.params["post_id"]) |> Repo.preload([:user, :tags, :comments, :likes])
     assign(conn, :post, post)
   end
 

@@ -7,7 +7,6 @@ defmodule Pxblog.Post do
     belongs_to(:user, Pxblog.User)
     has_many(:comments, Pxblog.Comment)
     has_many(:likes, Pxblog.Like)
-    field(:likes_count, :integer, virtual: true)
     many_to_many(:tags, Pxblog.Tag, join_through: "posts_tags")
     timestamps()
   end

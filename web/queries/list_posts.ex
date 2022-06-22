@@ -7,7 +7,6 @@ defmodule Pxblog.Queries.ListPosts do
   alias Pxblog.Repo
 
   def process(user, params) do
-    #IO.puts(params)
     Post
     |> with_user(user.id)
     |> with_title(params)
@@ -70,11 +69,11 @@ defmodule Pxblog.Queries.ListPosts do
   defp with_date(query, %{:date => nil}), do: query
 
   defp with_date(query, %{:date => date}) do
-    {_, cdate} = Ecto.Date.cast(date)
-
-    from(i in query,
-      where: fragment("date(inserted_at) = ?", ^cdate)
-    )
+    with {:ok, cdate} <- Ecto.Date.cast(date) do
+      from(i in query,
+        where: fragment("date(inserted_at) = ?", ^cdate)
+      )
+    end
   end
 
   defp with_date(query, _), do: query

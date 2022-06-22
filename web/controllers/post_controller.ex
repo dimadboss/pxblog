@@ -38,6 +38,7 @@ defmodule Pxblog.PostController do
       title: :string,
       body: :string,
       tag: :string,
+      date: :string,
       page!: :integer,
       page_size!: :integer
     }
@@ -113,8 +114,6 @@ defmodule Pxblog.PostController do
   def delete(conn, %{"id" => id}) do
     post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
 
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
     Repo.delete!(post)
 
     conn

@@ -125,13 +125,13 @@ defmodule Pxblog.PostControllerTest do
     assert html_response(conn, 200) =~ "And the body of some post"
   end
 
-  # test "lists all entries on index with date search query (no posts)", %{conn: conn, user: user} do
-  #   date = Date.to_string(~D[2000-01-01])
-  #   conn = get(conn, user_post_path(conn, :index, user, %{date: date}), @pagination_attrs)
+  test "lists all entries on index with date search query (no posts)", %{conn: conn, user: user} do
+    date = Date.to_string(~D[2000-01-01])
+    conn = get(conn, user_post_path(conn, :index, user, %{date: date}), @pagination_attrs)
 
-  #   assert html_response(conn, 200) =~ "Listing posts"
-  #   refute html_response(conn, 200) =~ "And the body of some post"
-  # end
+    assert html_response(conn, 200) =~ "Listing posts"
+    refute html_response(conn, 200) =~ "And the body of some post"
+  end
 
   test "renders form for new resources", %{conn: conn, user: user} do
     conn = get(conn, user_post_path(conn, :new, user), @pagination_attrs)

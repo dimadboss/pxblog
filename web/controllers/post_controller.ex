@@ -87,7 +87,12 @@ defmodule Pxblog.PostController do
       |> build_assoc(:comments)
       |> Pxblog.Comment.changeset()
 
-    render(conn, "show.html", post: post, comment_changeset: comment_changeset)
+    like_changeset =
+      post
+      |> build_assoc(:likes)
+      |> Pxblog.Like.changeset()
+
+    render(conn, "show.html", post: post, comment_changeset: comment_changeset, like_changeset: like_changeset)
   end
 
   def edit(conn, %{"id" => id}) do

@@ -25,6 +25,7 @@ defmodule Pxblog.Router do
 
     resources "/posts", PostController, only: [] do
       resources("/comments", CommentController, only: [:create, :delete, :update])
+      resources("/likes", LikeController, only: [:create])
     end
 
     resources "/posts", PostController, only: [] do

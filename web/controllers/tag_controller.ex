@@ -3,6 +3,8 @@ defmodule Pxblog.TagController do
 
   alias Pxblog.Tag
   alias Pxblog.Post
+  alias Pxblog.RoleChecker
+  # to replace empty string with nil
   plug(:scrub_params, "tag" when action in [:create, :update])
   plug(:set_post_and_authorize_user when action in [:update, :delete])
 
@@ -57,7 +59,9 @@ defmodule Pxblog.TagController do
   end
 
   defp set_post(conn) do
-    post = Repo.get!(Post, conn.params["post_id"]) |> Repo.preload([:user, :tags, :comments, :likes])
+    post =
+      Repo.get!(Post, conn.params["post_id"]) |> Repo.preload([:user, :tags, :comments, :likes])
+
     assign(conn, :post, post)
   end
 
@@ -77,6 +81,6 @@ defmodule Pxblog.TagController do
   defp is_authorized_user?(conn) do
     user = get_session(conn, :current_user)
     post = conn.assigns[:post]
-    user && (user.id == post.user_id || Pxblog.RoleChecker.is_admin?(user))
+    user && (user.id == post.user_id || RoleChecker.is_admin?(user))
   end
 end

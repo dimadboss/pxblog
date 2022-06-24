@@ -2,36 +2,11 @@ defmodule Pxblog.PostController do
   use Pxblog.Web, :controller
 
   alias Pxblog.Post
+  alias Pxblog.Queries.ListPosts
 
   plug(:assign_user)
   plug(:authorize_user when action in [:new, :create, :update, :edit, :delete])
-
-  # Add to the top of the controller with the other plug declarations
   plug(:set_authorization_flag)
-  # Add to the bottom with the other plug definitions
-  defp set_authorization_flag(conn, _opts) do
-    assign(conn, :author_or_admin, is_authorized_user?(conn))
-  end
-
-  defp assign_user(conn, _opts) do
-    case conn.params do
-      %{"user_id" => user_id} ->
-        case Repo.get(Pxblog.User, user_id) do
-          nil -> invalid_user(conn)
-          user -> assign(conn, :user, user)
-        end
-
-      _ ->
-        invalid_user(conn)
-    end
-  end
-
-  defp invalid_user(conn) do
-    conn
-    |> put_flash(:error, "Invalid user!")
-    |> redirect(to: page_path(conn, :index))
-    |> halt
-  end
 
   defmodule IndexSearchParams do
     use Params.Schema, %{
@@ -46,7 +21,7 @@ defmodule Pxblog.PostController do
 
   def index(conn, params) do
     with {:ok, params} <- ApplyParams.do_apply(IndexSearchParams, params) do
-      posts = Pxblog.Queries.ListPosts.process(conn.assigns[:user], params)
+      posts = ListPosts.process(conn.assigns[:user], params)
       render(conn, "index.html", posts: posts)
     end
   end
@@ -92,11 +67,18 @@ defmodule Pxblog.PostController do
       |> build_assoc(:likes)
       |> Pxblog.Like.changeset()
 
-    render(conn, "show.html", post: post, comment_changeset: comment_changeset, like_changeset: like_changeset)
+    render(conn, "show.html",
+      post: post,
+      comment_changeset: comment_changeset,
+      like_changeset: like_changeset
+    )
   end
 
   def edit(conn, %{"id" => id}) do
-    post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
+    post =
+      Repo.get!(assoc(conn.assigns[:user], :posts), id)
+      |> Repo.preload([:comments, :likes, :tags, :user])
+
     changeset = Post.changeset(post)
     render(conn, "edit.html", post: post, changeset: changeset)
   end
@@ -129,6 +111,37 @@ defmodule Pxblog.PostController do
     |> redirect(to: user_post_path(conn, :index, conn.assigns[:user]))
   end
 
+  defp set_authorization_flag(conn, _opts) do
+    assign(conn, :author_or_admin, is_authorized_user?(conn))
+  end
+
+  defp is_authorized_user?(conn) do
+    user = get_session(conn, :current_user)
+
+    user &&
+      (Integer.to_string(user.id) == conn.params["user_id"] || Pxblog.RoleChecker.is_admin?(user))
+  end
+
+  defp assign_user(conn, _opts) do
+    case conn.params do
+      %{"user_id" => user_id} ->
+        case Repo.get(Pxblog.User, user_id) do
+          nil -> invalid_user(conn)
+          user -> assign(conn, :user, user)
+        end
+
+      _ ->
+        invalid_user(conn)
+    end
+  end
+
+  defp invalid_user(conn) do
+    conn
+    |> put_flash(:error, "Invalid user!")
+    |> redirect(to: page_path(conn, :index))
+    |> halt
+  end
+
   defp authorize_user(conn, _opts) do
     if is_authorized_user?(conn) do
       conn
@@ -138,12 +151,5 @@ defmodule Pxblog.PostController do
       |> redirect(to: page_path(conn, :index))
       |> halt()
     end
-  end
-
-  defp is_authorized_user?(conn) do
-    user = get_session(conn, :current_user)
-
-    user &&
-      (Integer.to_string(user.id) == conn.params["user_id"] || Pxblog.RoleChecker.is_admin?(user))
   end
 end

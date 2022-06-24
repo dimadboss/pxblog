@@ -2,9 +2,9 @@ defmodule Pxblog.Like do
   use Pxblog.Web, :model
 
   schema "likes" do
-    belongs_to :user, Pxblog.User
-    belongs_to :post, Pxblog.Post
-    belongs_to :comment, Pxblog.Comment
+    belongs_to(:user, Pxblog.User)
+    belongs_to(:post, Pxblog.Post)
+    belongs_to(:comment, Pxblog.Comment)
 
     timestamps()
   end
@@ -16,6 +16,5 @@ defmodule Pxblog.Like do
     struct
     |> cast(params, [])
     |> assoc_constraint(:user)
-    |> validate_required([])
   end
 end

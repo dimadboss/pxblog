@@ -3,6 +3,8 @@ defmodule Pxblog.CommentController do
 
   alias Pxblog.Comment
   alias Pxblog.Post
+  alias Pxblog.RoleChecker
+  # to replace empty string with nil
   plug(:scrub_params, "comment" when action in [:create, :update])
   plug(:set_post_and_authorize_user when action in [:update, :delete])
 
@@ -79,6 +81,6 @@ defmodule Pxblog.CommentController do
   defp is_authorized_user?(conn) do
     user = get_session(conn, :current_user)
     post = conn.assigns[:post]
-    user && (user.id == post.user_id || Pxblog.RoleChecker.is_admin?(user))
+    user && (user.id == post.user_id || RoleChecker.is_admin?(user))
   end
 end
